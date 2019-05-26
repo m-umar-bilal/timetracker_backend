@@ -1,7 +1,10 @@
 const Promise = require('bluebird');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const SALT_WORK_FACTOR = 10;
 const httpStatus = require('http-status');
 const APIError = require('../helpers/APIError');
+
 
 /**
  * User Schema
@@ -9,12 +12,17 @@ const APIError = require('../helpers/APIError');
 const UserSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: true
+    required: true,
+    index: { unique: true }
   },
-  mobileNumber: {
+  type: {
     type: String,
     required: true,
-    match: [/^[1-9][0-9]{9}$/, 'The value of path {PATH} ({VALUE}) is not a valid mobile number.']
+    enum: ['admin', 'scientist'],
+  },
+  password: {
+    type: String,
+    required: true,
   },
   createdAt: {
     type: Date,
@@ -28,12 +36,37 @@ const UserSchema = new mongoose.Schema({
  * - validations
  * - virtuals
  */
+UserSchema.pre('save', function (next) {
+  const user = this;
 
+  // only hash the password if it has been modified (or is new)
+  if (!user.isModified('password')) return next();
+
+  // generate a salt
+  bcrypt.genSalt(SALT_WORK_FACTOR, (err, salt) => {
+    if (err) return next(err);
+
+    // hash the password using our new salt
+    bcrypt.hash(user.password, salt, (err, hash) => {
+      if (err) return next(err);
+
+      // override the cleartext password with the hashed one
+      user.password = hash;
+      next();
+    });
+  });
+});
 /**
  * Methods
  */
-UserSchema.method({
-});
+// UserSchema.method({
+// });
+UserSchema.methods.comparePassword = function (candidatePassword, cb) {
+  bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
+    if (err) return cb(err);
+    cb(null, isMatch);
+  });
+};
 
 /**
  * Statics
@@ -63,7 +96,12 @@ UserSchema.statics = {
    * @returns {Promise<User[]>}
    */
   list({ skip = 0, limit = 50 } = {}) {
-    return this.find()
+    return this.find({},
+      {
+        password: false,
+        __v: false
+
+      })
       .sort({ createdAt: -1 })
       .skip(+skip)
       .limit(+limit)

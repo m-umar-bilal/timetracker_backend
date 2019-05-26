@@ -29,7 +29,8 @@ function get(req, res) {
 function create(req, res, next) {
   const user = new User({
     username: req.body.username,
-    mobileNumber: req.body.mobileNumber
+    type: req.body.type,
+    password: req.body.password
   });
 
   user.save()
@@ -46,7 +47,7 @@ function create(req, res, next) {
 function update(req, res, next) {
   const user = req.user;
   user.username = req.body.username;
-  user.mobileNumber = req.body.mobileNumber;
+  user.type = req.body.type;
 
   user.save()
     .then(savedUser => res.json(savedUser))

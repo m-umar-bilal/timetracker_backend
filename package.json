@@ -1,15 +1,10 @@
 {
-  "name": "express-mongoose-es6-rest-api",
-  "version": "5.0.0",
+  "name": "timetracker-backend",
+  "version": "1.0.0",
   "description": "A Boilerplate application for building REST APIs using express, mongoose in ES6 with code coverage",
-  "author": "Kunal Kapadia <kunalkapadia12@gmail.com>",
+  "author": "Umar Bilal <umar-bilal@hotmail.com>",
   "main": "index.js",
   "private": false,
-  "engines": {
-    "node": ">=8.10.0",
-    "npm": ">=5.6.0",
-    "yarn": ">=1.5.1"
-  },
   "scripts": {
     "start": "node index.js",
     "start:debug": "cross-env DEBUG=express-mongoose-es6-rest-api:* yarn start",
@@ -40,8 +35,9 @@
     "boilerplate"
   ],
   "dependencies": {
+    "bcrypt": "^3.0.6",
     "bluebird": "3.5.1",
-    "body-parser": "1.18.2",
+    "body-parser": "false1.19.0",
     "compression": "1.7.2",
     "cookie-parser": "1.4.3",
     "cors": "2.8.4",
